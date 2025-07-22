@@ -120,40 +120,7 @@ export default {
 				'glow-pulse': {
 					'0%, 100%': { boxShadow: '0 0 20px hsl(259 94% 51% / 0.3)' },
 					'50%': { boxShadow: '0 0 40px hsl(259 94% 51% / 0.6)' }
-				},
-				'moveHorizontal': {
-					'0%': {
-						transform: 'translateX(-50%) translateY(-10%)',
-					},
-					'50%': {
-						transform: 'translateX(50%) translateY(10%)',
-					},
-					'100%': {
-						transform: 'translateX(-50%) translateY(-10%)',
-					},
-				},
-				'moveInCircle': {
-					'0%': {
-						transform: 'rotate(0deg)',
-					},
-					'50%': {
-						transform: 'rotate(180deg)',
-					},
-					'100%': {
-						transform: 'rotate(360deg)',
-					},
-				},
-				'moveVertical': {
-					'0%': {
-						transform: 'translateY(-50%)',
-					},
-					'50%': {
-						transform: 'translateY(50%)',
-					},
-					'100%': {
-						transform: 'translateY(-50%)',
-					},
-				},
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -161,12 +128,7 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
 				'slide-in': 'slide-in 0.3s ease-out',
-				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'first': 'moveVertical 30s ease infinite',
-				'second': 'moveInCircle 20s reverse infinite',
-				'third': 'moveInCircle 40s linear infinite',
-				'fourth': 'moveHorizontal 40s ease infinite',
-				'fifth': 'moveInCircle 20s ease infinite',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite'
 			}
 		}
 	},

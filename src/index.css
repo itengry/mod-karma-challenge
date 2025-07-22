@@ -6,43 +6,43 @@
 
 @layer base {
   :root {
-    /* Base theme - Dark social media inspired */
-    --background: 222 22% 8%;
-    --foreground: 213 31% 91%;
+    /* Base theme - Graphite, Green, Black & White */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    --card: 222 22% 11%;
-    --card-foreground: 213 31% 91%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 222 22% 11%;
-    --popover-foreground: 213 31% 91%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    /* Primary - Deep purple for authority */
-    --primary: 259 94% 51%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Graphite */
+    --primary: 0 0% 20%;
+    --primary-foreground: 0 0% 98%;
 
-    /* Secondary - Muted dark */
-    --secondary: 222 22% 15%;
-    --secondary-foreground: 213 31% 91%;
+    /* Secondary - Light graphite */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 222 22% 15%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 259 94% 51%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 98%;
 
     /* Action colors */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
     
     --warning: 38 92% 50%;
-    --warning-foreground: 222 22% 8%;
+    --warning-foreground: 0 0% 9%;
     
     --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --success-foreground: 0 0% 98%;
 
-    --border: 222 22% 18%;
-    --input: 222 22% 15%;
-    --ring: 259 94% 51%;
+    --border: 0 0% 89%;
+    --input: 0 0% 96%;
+    --ring: 142 76% 36%;
 
     --radius: 0.75rem;
 
@@ -50,17 +50,17 @@
     --moderate-keep: 142 76% 36%;
     --moderate-delete: 0 84% 60%;
     --moderate-warn: 38 92% 50%;
-    --moderate-hide: 217 91% 60%;
-    --moderate-highlight: 259 94% 51%;
+    --moderate-hide: 0 0% 45%;
+    --moderate-highlight: 142 76% 36%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(259 94% 51%), hsl(217 91% 60%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 20%), hsl(0 0% 45%));
     --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(14 91% 54%));
     --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 76% 45%));
     
     /* Shadows and effects */
-    --shadow-glow: 0 0 30px hsl(259 94% 51% / 0.3);
-    --shadow-card: 0 10px 30px -5px hsl(222 22% 4% / 0.5);
+    --shadow-glow: 0 0 30px hsl(142 76% 36% / 0.3);
+    --shadow-card: 0 10px 30px -5px hsl(0 0% 9% / 0.1);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

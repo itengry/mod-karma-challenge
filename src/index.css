@@ -2,41 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Moderation Game Design System - Modern Social Media Interface */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base theme - Dark social media inspired */
+    --background: 222 22% 8%;
+    --foreground: 213 31% 91%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 222 22% 11%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 222 22% 11%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* Primary - Deep purple for authority */
+    --primary: 259 94% 51%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Muted dark */
+    --secondary: 222 22% 15%;
+    --secondary-foreground: 213 31% 91%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 222 22% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 259 94% 51%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    /* Action colors */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 22% 8%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 222 22% 18%;
+    --input: 222 22% 15%;
+    --ring: 259 94% 51%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Game specific colors */
+    --moderate-keep: 142 76% 36%;
+    --moderate-delete: 0 84% 60%;
+    --moderate-warn: 38 92% 50%;
+    --moderate-hide: 217 91% 60%;
+    --moderate-highlight: 259 94% 51%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(259 94% 51%), hsl(217 91% 60%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(14 91% 54%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 76% 45%));
+    
+    /* Shadows and effects */
+    --shadow-glow: 0 0 30px hsl(259 94% 51% / 0.3);
+    --shadow-card: 0 10px 30px -5px hsl(222 22% 4% / 0.5);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { moderationScenarios, moderationActions, moderatorTypes, type ModerationScenario } from '@/data/moderationScenarios';
-import { MessageSquare, Users, AlertTriangle, Trophy, Share2 } from 'lucide-react';
+import { MessageSquare, Users, Trophy, Share2 } from 'lucide-react';
 
 interface GameState {
   currentScenario: number;
@@ -60,9 +60,6 @@ const ModerationGame = () => {
     switch (actionId) {
       case 'keep': return '✅';
       case 'delete': return '🗑️';
-      case 'warn': return '⚠️';
-      case 'hide': return '👁️‍🗨️';
-      case 'highlight': return '⭐';
       default: return '';
     }
   };
@@ -71,9 +68,6 @@ const ModerationGame = () => {
     switch (actionId) {
       case 'keep': return 'bg-moderate-keep';
       case 'delete': return 'bg-moderate-delete';
-      case 'warn': return 'bg-moderate-warn';
-      case 'hide': return 'bg-moderate-hide';
-      case 'highlight': return 'bg-moderate-highlight';
       default: return 'bg-muted';
     }
   };
@@ -238,16 +232,6 @@ const ModerationGame = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="outline">{currentScenario.author}</Badge>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <AlertTriangle className="h-4 w-4" />
-                    {currentScenario.reports} жалоб
-                  </div>
-                  <Badge 
-                    variant={currentScenario.threadActivity === 'высокая' ? 'destructive' : 
-                            currentScenario.threadActivity === 'средняя' ? 'default' : 'secondary'}
-                  >
-                    {currentScenario.threadActivity} активность
-                  </Badge>
                 </div>
                 
                 <blockquote className="border-l-4 border-primary pl-4 text-lg mb-4">
@@ -263,7 +247,7 @@ const ModerationGame = () => {
             {!gameState.showResult && (
               <div className="space-y-3">
                 <h3 className="font-semibold">Ваше решение:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   {moderationActions.map((action) => (
                     <Button
                       key={action.id}

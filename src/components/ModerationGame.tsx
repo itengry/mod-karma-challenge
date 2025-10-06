@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { moderationScenarios, moderationActions, moderatorTypes, type ModerationScenario } from '@/data/moderationScenarios';
-import { MessageSquare, Users, Trophy, Share2 } from 'lucide-react';
+import { MessageSquare, Users, Trophy, Share2, Settings } from 'lucide-react';
 
 interface GameState {
   currentScenario: number;
@@ -217,8 +218,16 @@ const ModerationGame = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Будь Модератором</h1>
-          <div className="text-sm text-muted-foreground">
-            {gameState.currentScenario + 1} из {totalScenarios}
+          <div className="flex items-center gap-4">
+            <Link to="/admin">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Админпанель
+              </Button>
+            </Link>
+            <div className="text-sm text-muted-foreground">
+              {gameState.currentScenario + 1} из {totalScenarios}
+            </div>
           </div>
         </div>
 

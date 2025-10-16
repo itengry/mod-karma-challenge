@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { moderationScenarios, moderationActions, getAccuracyTier, getStyleByPercent, type ModerationScenario } from '@/data/moderationScenarios';
+import { moderationScenarios, moderationActions, getStyleByPercent, type ModerationScenario } from '@/data/moderationScenarios';
 import { MessageSquare, Users, Trophy, Share2, Settings } from 'lucide-react';
 
 interface GameState {
@@ -75,66 +75,33 @@ const ModerationGame = () => {
 
   const calculateResults = () => {
     const byId = new Map(gameState.decisions.map((choice, idx) => [moderationScenarios[idx].id, choice]));
-    let totalAnswered = 0;
-    let totalWeight = 0;
+    let total = 0;
+    let matchCount = 0;
     let deleteCount = 0;
-    let matchWeightSum = 0;
 
     for (const q of moderationScenarios) {
       const choice = byId.get(q.id);
       if (!choice) continue;
-      const w = q.weight ?? 1;
-
-      totalAnswered += 1;
-      totalWeight += w;
-
+      total += 1;
       if (choice === 'delete') deleteCount += 1;
-      if (choice === q.result.realModeratorAction) matchWeightSum += w;
+      if (choice === q.result.realModeratorAction) matchCount += 1;
     }
 
-    const accuracyPercent = totalWeight > 0 ? Math.round((matchWeightSum / totalWeight) * 100) : 0;
-    const deletesPercent = totalAnswered > 0 ? Math.round((deleteCount / totalAnswered) * 100) : 0;
-
+    const accuracyPercent = total > 0 ? Math.round((matchCount / total) * 100) : 0;
+    const deletesPercent = total > 0 ? Math.round((deleteCount / total) * 100) : 0;
     const style = getStyleByPercent(deletesPercent);
-    const acc = getAccuracyTier(accuracyPercent);
 
     return {
-      viewModel: {
-        title: style.title,
-        description: style.description,
-        kpiLeft: {
-          primary: `${Math.round(matchWeightSum)}/${totalAnswered}`,
-          caption: "Совпало с реальными решениями"
-        },
-        kpiRight: {
-          primary: `${accuracyPercent}%`,
-          caption: "Точность модерации"
-        }
-      },
-      meta: {
-        style: {
-          id: style.id,
-          title: style.title,
-          description: style.description,
-          traits: style.traits,
-          deletes: deleteCount,
-          deletesPercent,
-          total: totalAnswered
-        },
-        accuracy: {
-          matches: Math.round(matchWeightSum),
-          total: totalAnswered,
-          percent: accuracyPercent,
-          tier: acc.tier,
-          tierNote: acc.tierNote
-        }
-      }
+      title: style.title,
+      description: style.description,
+      matches: `${matchCount}/${total} совпало с реальными решениями`,
+      accuracy: `${accuracyPercent}% точность модерации`
     };
   };
 
   const shareResults = () => {
     const results = calculateResults();
-    const text = `Я был модератором и выжил! Стиль модерации: ${results.viewModel.title}. Совпадение с модераторами: ${results.viewModel.kpiRight.primary}. #15летназад #честномодерирую`;
+    const text = `Я был модератором и выжил! Стиль модерации: ${results.title}. ${results.accuracy}. #15летназад #честномодерирую`;
     
     if (navigator.share) {
       navigator.share({ text });
@@ -194,53 +161,28 @@ const ModerationGame = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-3xl w-full p-8 shadow-card animate-scale-in">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4">
-                {results.viewModel.title}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold">
+                {results.title}
               </h2>
-              <p className="text-lg text-muted-foreground">
-                {results.viewModel.description}
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                {results.description}
               </p>
             </div>
 
             {/* KPI Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-muted/50 rounded-lg p-6 text-center">
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {results.viewModel.kpiLeft.primary}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {results.viewModel.kpiLeft.caption}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-muted/50 rounded-lg p-8 text-center">
+                <p className="text-2xl font-bold text-primary">
+                  {results.matches}
                 </p>
               </div>
               
-              <div className="bg-muted/50 rounded-lg p-6 text-center">
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {results.viewModel.kpiRight.primary}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {results.viewModel.kpiRight.caption}
+              <div className="bg-muted/50 rounded-lg p-8 text-center">
+                <p className="text-2xl font-bold text-primary">
+                  {results.accuracy}
                 </p>
-              </div>
-            </div>
-
-            {/* Additional Details */}
-            <div className="bg-muted/50 rounded-lg p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Уровень точности:</span>
-                <span className="font-semibold">{results.meta.accuracy.tier}</span>
-              </div>
-              <p className="text-sm text-muted-foreground italic">
-                {results.meta.accuracy.tierNote}
-              </p>
-              <div className="pt-3 border-t border-border">
-                <div className="text-sm text-muted-foreground mb-1">
-                  Доля удалений: {results.meta.style.deletes}/{results.meta.style.total} ({results.meta.style.deletesPercent}%)
-                </div>
-                <div className="text-sm">
-                  <strong>Черты:</strong> {results.meta.style.traits}
-                </div>
               </div>
             </div>
 
@@ -254,12 +196,14 @@ const ModerationGame = () => {
                   showResult: false
                 })}
                 variant="outline"
+                size="lg"
               >
                 Играть снова
               </Button>
               <Button 
                 onClick={shareResults}
                 className="bg-gradient-primary hover:shadow-glow"
+                size="lg"
               >
                 <Share2 className="h-4 w-4 mr-2" />
                 Поделиться

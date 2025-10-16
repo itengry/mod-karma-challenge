@@ -160,7 +160,6 @@ export interface StyleResult {
   id: string;
   title: string;
   description: string;
-  traits: string;
   threshold: [number, number];
 }
 
@@ -169,51 +168,27 @@ export const styleResults: StyleResult[] = [
     id: "liberal",
     title: "Либеральный",
     description: "Вы даёте людям высказаться и вмешиваетесь редко. Обсуждения живые, но иногда бурлят.",
-    traits: "мягкий, доверяющий, демократичный",
     threshold: [0, 44]
   },
   {
     id: "balanced",
     title: "Сбалансированный",
     description: "Вы держите равновесие между свободой и порядком. Вас понимают и пользователи, и модераторы.",
-    traits: "взвешенный, справедливый, дипломатичный",
     threshold: [45, 69]
   },
   {
     id: "strict",
     title: "Строгий",
     description: "Вы цените порядок и предсказуемые правила. Решения твёрдые, иногда на грани жёсткости.",
-    traits: "последовательный, надёжный, требовательный",
     threshold: [70, 94]
   },
   {
     id: "radical",
     title: "Радикальный",
     description: "Вы контролируете почти всё. На площадке тихо, но пользователи осторожничают.",
-    traits: "решительный, властный, бескомпромиссный",
     threshold: [95, 100]
   }
 ];
-
-export interface AccuracyTier {
-  tier: string;
-  tierNote: string;
-}
-
-export function getAccuracyTier(percent: number): AccuracyTier {
-  if (percent <= 49) return { 
-    tier: "Новичок",
-    tierNote: "Часто спорите с модераторами — возможно, ищете свой стиль." 
-  };
-  if (percent <= 79) return { 
-    tier: "Наблюдательный",
-    tierNote: "Хорошо улавливаете правила и контекст решений." 
-  };
-  return { 
-    tier: "Почти модератор",
-    tierNote: "Высокое совпадение с реальной модерацией." 
-  };
-}
 
 export function getStyleByPercent(percent: number): StyleResult {
   for (const style of styleResults) {

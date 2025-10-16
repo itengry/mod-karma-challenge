@@ -75,17 +75,17 @@ const ModerationGame = () => {
 
   const calculateResults = () => {
     const byId = new Map(gameState.decisions.map((choice, idx) => [moderationScenarios[idx].id, choice]));
-    let total = 0;
+    let totalAnswered = 0;
     let totalWeight = 0;
     let deleteCount = 0;
     let matchWeightSum = 0;
 
     for (const q of moderationScenarios) {
-      const w = q.weight ?? 1;
       const choice = byId.get(q.id);
       if (!choice) continue;
+      const w = q.weight ?? 1;
 
-      total += 1;
+      totalAnswered += 1;
       totalWeight += w;
 
       if (choice === 'delete') deleteCount += 1;
@@ -93,35 +93,48 @@ const ModerationGame = () => {
     }
 
     const accuracyPercent = totalWeight > 0 ? Math.round((matchWeightSum / totalWeight) * 100) : 0;
-    const deletesPercent = total > 0 ? Math.round((deleteCount / total) * 100) : 0;
+    const deletesPercent = totalAnswered > 0 ? Math.round((deleteCount / totalAnswered) * 100) : 0;
 
-    const acc = getAccuracyTier(accuracyPercent);
     const style = getStyleByPercent(deletesPercent);
+    const acc = getAccuracyTier(accuracyPercent);
 
     return {
-      accuracy: {
-        matches: Math.round(matchWeightSum),
-        total,
-        percent: accuracyPercent,
-        tier: acc.tier,
-        tierNote: acc.tierNote
-      },
-      style: {
-        deletes: deleteCount,
-        total,
-        percent: deletesPercent,
-        id: style.id,
+      viewModel: {
         title: style.title,
         description: style.description,
-        traits: style.traits,
-        advice: style.advice
+        kpiLeft: {
+          primary: `${Math.round(matchWeightSum)}/${totalAnswered}`,
+          caption: "Совпало с реальными решениями"
+        },
+        kpiRight: {
+          primary: `${accuracyPercent}%`,
+          caption: "Точность модерации"
+        }
+      },
+      meta: {
+        style: {
+          id: style.id,
+          title: style.title,
+          description: style.description,
+          traits: style.traits,
+          deletes: deleteCount,
+          deletesPercent,
+          total: totalAnswered
+        },
+        accuracy: {
+          matches: Math.round(matchWeightSum),
+          total: totalAnswered,
+          percent: accuracyPercent,
+          tier: acc.tier,
+          tierNote: acc.tierNote
+        }
       }
     };
   };
 
   const shareResults = () => {
     const results = calculateResults();
-    const text = `Я был модератором и выжил! Стиль модерации: ${results.style.title}. Совпадение с модераторами: ${results.accuracy.percent}%. #15летназад #честномодерирую`;
+    const text = `Я был модератором и выжил! Стиль модерации: ${results.viewModel.title}. Совпадение с модераторами: ${results.viewModel.kpiRight.primary}. #15летназад #честномодерирую`;
     
     if (navigator.share) {
       navigator.share({ text });
@@ -183,45 +196,50 @@ const ModerationGame = () => {
         <Card className="max-w-3xl w-full p-8 shadow-card animate-scale-in">
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-2">
-                Ваши результаты
+              <h2 className="text-3xl font-bold mb-4">
+                {results.viewModel.title}
               </h2>
+              <p className="text-lg text-muted-foreground">
+                {results.viewModel.description}
+              </p>
             </div>
 
-            {/* Accuracy Section */}
-            <div className="bg-muted/50 rounded-lg p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold">🎯 Совпадение с модераторами</h3>
-                <div className="text-2xl font-bold text-primary">
-                  {results.accuracy.matches}/{results.accuracy.total} ({results.accuracy.percent}%)
+            {/* KPI Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-muted/50 rounded-lg p-6 text-center">
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {results.viewModel.kpiLeft.primary}
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {results.viewModel.kpiLeft.caption}
+                </p>
               </div>
-              <div className="bg-background/50 rounded p-4">
-                <div className="font-semibold text-lg mb-1">{results.accuracy.tier}</div>
-                <p className="text-sm text-muted-foreground">{results.accuracy.tierNote}</p>
+              
+              <div className="bg-muted/50 rounded-lg p-6 text-center">
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {results.viewModel.kpiRight.primary}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {results.viewModel.kpiRight.caption}
+                </p>
               </div>
             </div>
 
-            {/* Style Section */}
-            <div className="bg-muted/50 rounded-lg p-6 space-y-4">
+            {/* Additional Details */}
+            <div className="bg-muted/50 rounded-lg p-6 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold">⚖️ Стиль модерации</h3>
-                <div className="text-2xl font-bold text-primary">
-                  {results.style.title}
-                </div>
+                <span className="text-sm text-muted-foreground">Уровень точности:</span>
+                <span className="font-semibold">{results.meta.accuracy.tier}</span>
               </div>
-              <div className="space-y-3">
-                <p className="text-base">{results.style.description}</p>
-                <div className="bg-background/50 rounded p-3">
-                  <div className="text-sm text-muted-foreground mb-1">
-                    Доля удалений: {results.style.deletes}/{results.style.total} ({results.style.percent}%)
-                  </div>
-                  <div className="text-sm">
-                    <strong>Черты:</strong> {results.style.traits}
-                  </div>
+              <p className="text-sm text-muted-foreground italic">
+                {results.meta.accuracy.tierNote}
+              </p>
+              <div className="pt-3 border-t border-border">
+                <div className="text-sm text-muted-foreground mb-1">
+                  Доля удалений: {results.meta.style.deletes}/{results.meta.style.total} ({results.meta.style.deletesPercent}%)
                 </div>
-                <div className="bg-primary/10 border border-primary/20 rounded p-4">
-                  <div className="text-sm font-medium">💬 {results.style.advice}</div>
+                <div className="text-sm">
+                  <strong>Черты:</strong> {results.meta.style.traits}
                 </div>
               </div>
             </div>

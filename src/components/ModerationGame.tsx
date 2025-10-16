@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { moderationScenarios, moderationActions, moderatorTypes, type ModerationScenario } from '@/data/moderationScenarios';
+import { moderationScenarios, moderationActions, getAccuracyTier, getStyleByPercent, type ModerationScenario } from '@/data/moderationScenarios';
 import { MessageSquare, Users, Trophy, Share2, Settings } from 'lucide-react';
 
 interface GameState {
@@ -73,23 +73,55 @@ const ModerationGame = () => {
     }
   };
 
-  const calculateModeratorType = () => {
-    const actions = gameState.decisions;
-    const deletions = actions.filter(a => a === 'delete').length;
-    const keeps = actions.filter(a => a === 'keep').length;
-    const correctDecisions = gameState.score;
-    const totalDecisions = actions.length;
+  const calculateResults = () => {
+    const byId = new Map(gameState.decisions.map((choice, idx) => [moderationScenarios[idx].id, choice]));
+    let total = 0;
+    let totalWeight = 0;
+    let deleteCount = 0;
+    let matchWeightSum = 0;
 
-    if (correctDecisions >= totalDecisions * 0.8) return moderatorTypes.wise;
-    if (deletions >= totalDecisions * 0.6) return moderatorTypes.strict;
-    if (keeps >= totalDecisions * 0.6) return moderatorTypes.liberal;
-    if (correctDecisions >= totalDecisions * 0.5) return moderatorTypes.balanced;
-    return moderatorTypes.chaotic;
+    for (const q of moderationScenarios) {
+      const w = q.weight ?? 1;
+      const choice = byId.get(q.id);
+      if (!choice) continue;
+
+      total += 1;
+      totalWeight += w;
+
+      if (choice === 'delete') deleteCount += 1;
+      if (choice === q.result.realModeratorAction) matchWeightSum += w;
+    }
+
+    const accuracyPercent = totalWeight > 0 ? Math.round((matchWeightSum / totalWeight) * 100) : 0;
+    const deletesPercent = total > 0 ? Math.round((deleteCount / total) * 100) : 0;
+
+    const acc = getAccuracyTier(accuracyPercent);
+    const style = getStyleByPercent(deletesPercent);
+
+    return {
+      accuracy: {
+        matches: Math.round(matchWeightSum),
+        total,
+        percent: accuracyPercent,
+        tier: acc.tier,
+        tierNote: acc.tierNote
+      },
+      style: {
+        deletes: deleteCount,
+        total,
+        percent: deletesPercent,
+        id: style.id,
+        title: style.title,
+        description: style.description,
+        traits: style.traits,
+        advice: style.advice
+      }
+    };
   };
 
   const shareResults = () => {
-    const moderatorType = calculateModeratorType();
-    const text = `Я был модератором и выжил! ${moderatorType.emoji} Тип: ${moderatorType.name}. Правильных решений: ${gameState.score}/${totalScenarios}. #15летназад #честномодерирую`;
+    const results = calculateResults();
+    const text = `Я был модератором и выжил! Стиль модерации: ${results.style.title}. Совпадение с модераторами: ${results.accuracy.percent}%. #15летназад #честномодерирую`;
     
     if (navigator.share) {
       navigator.share({ text });
@@ -144,43 +176,52 @@ const ModerationGame = () => {
   }
 
   if (gameState.gamePhase === 'final') {
-    const moderatorType = calculateModeratorType();
+    const results = calculateResults();
     
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full p-8 shadow-card animate-scale-in">
-          <div className="text-center space-y-6">
-            <div className="text-6xl animate-glow-pulse">
-              {moderatorType.emoji}
-            </div>
-            
-            <div>
-              <h2 className="text-3xl font-bold text-primary mb-2">
-                {moderatorType.name}
+        <Card className="max-w-3xl w-full p-8 shadow-card animate-scale-in">
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-2">
+                Ваши результаты
               </h2>
-              <p className="text-lg text-muted-foreground">
-                {moderatorType.description}
-              </p>
             </div>
 
+            {/* Accuracy Section */}
             <div className="bg-muted/50 rounded-lg p-6 space-y-4">
-              <h3 className="text-xl font-semibold">Ваши результаты:</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-2xl font-bold text-success">
-                    {gameState.score}/{totalScenarios}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold">🎯 Совпадение с модераторами</h3>
+                <div className="text-2xl font-bold text-primary">
+                  {results.accuracy.matches}/{results.accuracy.total} ({results.accuracy.percent}%)
+                </div>
+              </div>
+              <div className="bg-background/50 rounded p-4">
+                <div className="font-semibold text-lg mb-1">{results.accuracy.tier}</div>
+                <p className="text-sm text-muted-foreground">{results.accuracy.tierNote}</p>
+              </div>
+            </div>
+
+            {/* Style Section */}
+            <div className="bg-muted/50 rounded-lg p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold">⚖️ Стиль модерации</h3>
+                <div className="text-2xl font-bold text-primary">
+                  {results.style.title}
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="text-base">{results.style.description}</p>
+                <div className="bg-background/50 rounded p-3">
+                  <div className="text-sm text-muted-foreground mb-1">
+                    Доля удалений: {results.style.deletes}/{results.style.total} ({results.style.percent}%)
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Совпало с реальными решениями
+                  <div className="text-sm">
+                    <strong>Черты:</strong> {results.style.traits}
                   </div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">
-                    {Math.round((gameState.score / totalScenarios) * 100)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Точность модерации
-                  </div>
+                <div className="bg-primary/10 border border-primary/20 rounded p-4">
+                  <div className="text-sm font-medium">💬 {results.style.advice}</div>
                 </div>
               </div>
             </div>

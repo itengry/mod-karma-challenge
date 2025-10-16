@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { moderationScenarios, moderationActions, moderatorTypes } from '@/data/moderationScenarios';
+import { moderationScenarios, moderationActions, styleResults } from '@/data/moderationScenarios';
 import { ArrowLeft, Edit, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -68,8 +68,8 @@ const AdminPanel = () => {
               <div className="text-sm text-muted-foreground">Всего сценариев</div>
             </div>
             <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-primary">{Object.keys(moderatorTypes).length}</div>
-              <div className="text-sm text-muted-foreground">Типов модераторов</div>
+              <div className="text-2xl font-bold text-primary">{styleResults.length}</div>
+              <div className="text-sm text-muted-foreground">Стилей модерации</div>
             </div>
             <div className="bg-muted/50 rounded-lg p-4">
               <div className="text-2xl font-bold text-primary">{moderationActions.length}</div>

@@ -190,10 +190,83 @@ export const styleResults: StyleResult[] = [
   }
 ];
 
-export function getStyleByPercent(percent: number): StyleResult {
-  for (const style of styleResults) {
-    const [lo, hi] = style.threshold;
-    if (percent >= lo && percent <= hi) return style;
+const KPI_LEFT_CAPTION = "совпало с реальными решениями";
+const KPI_RIGHT_CAPTION = "точность модерации";
+
+const roundPct = (x: number) => Math.round(x);
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+function pickStyle(percent: number): StyleResult {
+  return styleResults.find(r => percent >= r.threshold[0] && percent <= r.threshold[1]) ?? styleResults[0];
+}
+
+export interface ResultData {
+  title: string;
+  description: string;
+  matches: string;
+  accuracy: string;
+}
+
+export function computeResults(
+  questions: ModerationScenario[],
+  answers: Array<{ id: number; choice: string }>
+): ResultData {
+  const byId = new Map(answers.map(a => [a.id, a.choice]));
+
+  let totalAnswered = 0;
+  let deleteCount = 0;
+  let totalWeight = 0;
+  let matchWeight = 0;
+
+  for (const q of questions) {
+    const choice = byId.get(q.id);
+    if (!choice) continue;
+    const w = typeof q.weight === "number" ? q.weight : 1;
+
+    totalAnswered += 1;
+    totalWeight += w;
+
+    if (choice === "delete") deleteCount += 1;
+    if (choice === q.result.realModeratorAction) matchWeight += w;
   }
-  return percent < 0 ? styleResults[0] : styleResults[styleResults.length - 1];
+
+  if (totalAnswered === 0 || totalWeight === 0) {
+    return {
+      title: "Недостаточно данных",
+      description: "Вы ответили слишком на малое число вопросов. Пройдите тест ещё раз.",
+      matches: `0/0 ${KPI_LEFT_CAPTION}`,
+      accuracy: `0% ${KPI_RIGHT_CAPTION}`
+    };
+  }
+
+  const accuracyPercent = roundPct((matchWeight / totalWeight) * 100);
+  const deletesPercent = roundPct((deleteCount / totalAnswered) * 100);
+
+  const accP = clamp(accuracyPercent, 0, 100);
+  const delP = clamp(deletesPercent, 0, 100);
+
+  const baseStyle = pickStyle(delP);
+
+  // Спец-кейс: 0 совпадений
+  if (matchWeight === 0) {
+    return {
+      title: "Экспериментатор",
+      description:
+        "Ваши решения полностью расходятся с модераторами — зато вы мыслите самостоятельно. Возможно, именно вам стоит придумать новые правила.",
+      matches: `${Math.round(matchWeight)}/${totalAnswered} ${KPI_LEFT_CAPTION}`,
+      accuracy: `${accP}% ${KPI_RIGHT_CAPTION}`
+    };
+  }
+
+  // Спец-кейс: полное совпадение
+  const extra = (Math.round(matchWeight) === totalAnswered)
+    ? " Полностью совпали с решениями модераторов — отличное чувство правил и контекста."
+    : "";
+
+  return {
+    title: baseStyle.title,
+    description: (baseStyle.description + extra).trim(),
+    matches: `${Math.round(matchWeight)}/${totalAnswered} ${KPI_LEFT_CAPTION}`,
+    accuracy: `${accP}% ${KPI_RIGHT_CAPTION}`
+  };
 }

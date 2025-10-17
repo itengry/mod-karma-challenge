@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { moderationScenarios, moderationActions, getStyleByPercent, type ModerationScenario } from '@/data/moderationScenarios';
+import { moderationScenarios, moderationActions, computeResults, type ModerationScenario } from '@/data/moderationScenarios';
 import { MessageSquare, Users, Trophy, Share2, Settings } from 'lucide-react';
 
 interface GameState {
@@ -74,29 +74,11 @@ const ModerationGame = () => {
   };
 
   const calculateResults = () => {
-    const byId = new Map(gameState.decisions.map((choice, idx) => [moderationScenarios[idx].id, choice]));
-    let total = 0;
-    let matchCount = 0;
-    let deleteCount = 0;
-
-    for (const q of moderationScenarios) {
-      const choice = byId.get(q.id);
-      if (!choice) continue;
-      total += 1;
-      if (choice === 'delete') deleteCount += 1;
-      if (choice === q.result.realModeratorAction) matchCount += 1;
-    }
-
-    const accuracyPercent = total > 0 ? Math.round((matchCount / total) * 100) : 0;
-    const deletesPercent = total > 0 ? Math.round((deleteCount / total) * 100) : 0;
-    const style = getStyleByPercent(deletesPercent);
-
-    return {
-      title: style.title,
-      description: style.description,
-      matches: `${matchCount}/${total} совпало с реальными решениями`,
-      accuracy: `${accuracyPercent}% точность модерации`
-    };
+    const answers = gameState.decisions.map((choice, idx) => ({
+      id: moderationScenarios[idx].id,
+      choice
+    }));
+    return computeResults(moderationScenarios, answers);
   };
 
   const shareResults = () => {
